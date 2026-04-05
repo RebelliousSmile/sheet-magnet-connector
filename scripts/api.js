@@ -197,7 +197,7 @@ class SheetMagnetConnectionDialog extends Application {
   }
 
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return Object.assign({}, super.defaultOptions, {
       id: 'sheet-magnet-connection',
       title: 'Sheet Magnet Connection',
       template: `modules/${MODULE_ID}/templates/connection-dialog.html`,
