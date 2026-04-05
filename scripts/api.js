@@ -186,7 +186,13 @@ Hooks.once('ready', () => {
     }
   };
 
+  // Hook pour les re-renders futurs
   Hooks.on('renderActorDirectory', (app, html) => injectButton(html));
+
+  // Injection immédiate si le panneau est déjà rendu (Foundry v14)
+  if (ui.actors?.element) {
+    injectButton(ui.actors.element);
+  }
 });
 
 class SheetMagnetConnectionDialog extends Application {
