@@ -157,18 +157,36 @@ Hooks.once('ready', () => {
   console.log(`${MODULE_ID} | Socket: ${SOCKET_KEY}`);
   console.log(`${MODULE_ID} | Token: ${api.token}`);
 
-  // Add button to Actors Directory
-  Hooks.on('renderActorDirectory', (app, html) => {
-    const button = $(`<button class="sheet-magnet-connect" title="Sheet Magnet">
-      <i class="fas fa-qrcode"></i> Sheet Magnet
-    </button>`);
+  // Add button to Actors Directory (supports Foundry v10-v14)
+  const injectButton = (html) => {
+    const root = html instanceof HTMLElement ? html : html[0];
+    if (!root) return;
+    // Avoid duplicate buttons
+    if (root.querySelector('.sheet-magnet-connect')) return;
 
-    button.on('click', () => {
+    const button = document.createElement('button');
+    button.className = 'sheet-magnet-connect';
+    button.title = 'Sheet Magnet';
+    button.innerHTML = '<i class="fas fa-qrcode"></i> Sheet Magnet';
+    button.addEventListener('click', () => {
       new SheetMagnetConnectionDialog(api, connectionUrl).render(true);
     });
 
-    html.find('.directory-header .action-buttons').append(button);
-  });
+    // v14: header-actions, v10-v13: .directory-header .action-buttons
+    const target =
+      root.querySelector('.directory-header .action-buttons') ||
+      root.querySelector('.header-actions') ||
+      root.querySelector('.action-buttons') ||
+      root.querySelector('header');
+
+    if (target) {
+      target.appendChild(button);
+    } else {
+      console.warn(`${MODULE_ID} | Could not find action-buttons container`);
+    }
+  };
+
+  Hooks.on('renderActorDirectory', (app, html) => injectButton(html));
 });
 
 class SheetMagnetConnectionDialog extends Application {
